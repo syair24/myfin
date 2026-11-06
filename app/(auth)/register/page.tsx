@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -12,6 +12,7 @@ import {
   ReceiptText,
   Sparkles,
   UserRound,
+  AtSign,
   LockKeyhole,
   Mail,
   ChartNoAxesCombined,
@@ -28,6 +29,7 @@ export default function RegisterPage() {
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,10 +37,42 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
+    const normalizedName = name.trim();
+    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Validasi nama lengkap
+    if (normalizedName.length < 2 || normalizedName.length > 100) {
+      setError("Nama lengkap harus terdiri dari 2 sampai 100 karakter.");
+      return;
+    }
+
+    // Validasi username
+    if (normalizedUsername.length < 3 || normalizedUsername.length > 30) {
+      setError("Username harus terdiri dari 3 sampai 30 karakter.");
+      return;
+    }
+
+    const usernameRegex = /^[a-z0-9_]+$/;
+
+    if (!usernameRegex.test(normalizedUsername)) {
+      setError(
+        "Username hanya boleh menggunakan huruf, angka, dan underscore (_).",
+      );
+      return;
+    }
+
+    // Validasi email
+    if (!normalizedEmail) {
+      setError("Alamat email wajib diisi.");
+      return;
+    }
+
+    // Validasi password
     if (password.length < 8) {
       setError("Password minimal harus 8 karakter.");
       return;
@@ -63,8 +97,9 @@ export default function RegisterPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
-          email,
+          name: normalizedName,
+          username: normalizedUsername,
+          email: normalizedEmail,
           password,
         }),
       });
@@ -76,9 +111,8 @@ export default function RegisterPage() {
         return;
       }
 
-      // Registrasi berhasil, arahkan ke halaman login
+      // Registrasi berhasil, arahkan ke halaman login.
       router.push("/login");
-      router.refresh();
     } catch {
       setError("Tidak dapat terhubung ke server. Silakan coba lagi.");
     } finally {
@@ -198,6 +232,7 @@ export default function RegisterPage() {
               <h2 className="text-2xl font-bold text-gray-900">
                 Buat Akun Baru
               </h2>
+
               <p className="mt-1 text-sm text-gray-500">
                 Daftar dan mulai kelola keuanganmu.
               </p>
@@ -220,9 +255,9 @@ export default function RegisterPage() {
 
             {/* Register Form */}
             <form className="space-y-4" onSubmit={handleRegister}>
-              {/* Name & Email */}
+              {/* Nama Lengkap & Username */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {/* Name */}
+                {/* Nama Lengkap */}
                 <div>
                   <label
                     htmlFor="name"
@@ -245,39 +280,82 @@ export default function RegisterPage() {
                       autoComplete="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
+                      minLength={2}
+                      maxLength={100}
                       required
                       className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
                   </div>
                 </div>
 
-                {/* Email */}
+                {/* Username */}
                 <div>
                   <label
-                    htmlFor="email"
+                    htmlFor="username"
                     className="mb-1.5 block text-xs font-semibold text-gray-800"
                   >
-                    Alamat Email
+                    Username
                   </label>
 
                   <div className="relative">
-                    <Mail
+                    <AtSign
                       size={17}
                       className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
                     />
 
                     <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="nama@email.com"
-                      autoComplete="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="username"
+                      name="username"
+                      type="text"
+                      placeholder="Contoh: syair24"
+                      autoComplete="username"
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      minLength={3}
+                      maxLength={30}
+                      pattern="[A-Za-z0-9_]+"
+                      title="Username hanya boleh menggunakan huruf, angka, dan underscore."
+                      value={username}
+                      onChange={(e) =>
+                        setUsername(e.target.value.toLowerCase())
+                      }
                       required
                       className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
                   </div>
+
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    3–30 karakter, huruf, angka, atau underscore.
+                  </p>
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="mb-1.5 block text-xs font-semibold text-gray-800"
+                >
+                  Alamat Email
+                </label>
+
+                <div className="relative">
+                  <Mail
+                    size={17}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
+
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="nama@email.com"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                  />
                 </div>
               </div>
 
@@ -308,7 +386,7 @@ export default function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-10 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
                   </div>
                 </div>
@@ -340,10 +418,10 @@ export default function RegisterPage() {
                       className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-10 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                     />
 
-                    {/* Single Eye Button */}
+                    {/* Show / Hide Password */}
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
+                      onClick={() => setShowPassword((prev) => !prev)}
                       aria-label={
                         showPassword ? "Sembunyikan password" : "Lihat password"
                       }
@@ -433,6 +511,7 @@ export default function RegisterPage() {
             {/* Security */}
             <div className="mt-5 flex items-center justify-center gap-2 text-gray-400">
               <ShieldCheck size={14} />
+
               <span className="text-[11px]">
                 Data akunmu aman dan terlindungi.
               </span>

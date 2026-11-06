@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -12,7 +12,7 @@ import {
   ReceiptText,
   Sparkles,
   LockKeyhole,
-  Mail,
+  UserRound,
   ChartNoAxesCombined,
   CircleDollarSign,
   TrendingUp,
@@ -24,33 +24,46 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [email, setEmail] = useState("");
+
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setError("");
     setLoading(true);
 
-    const STATIC_EMAIL = "admin@dompetku.com";
-    const STATIC_PASSWORD = "dompetku123";
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username.trim().toLowerCase(),
+          password,
+          rememberMe,
+        }),
+      });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+      const data = await response.json();
 
-    if (
-      email.trim().toLowerCase() === STATIC_EMAIL &&
-      password === STATIC_PASSWORD
-    ) {
-      sessionStorage.setItem("isLoggedIn", "true");
-      sessionStorage.setItem("userEmail", STATIC_EMAIL);
+      if (!response.ok) {
+        setError(data.message || "Username atau password salah.");
+        return;
+      }
 
-      router.push("/dashboard");
+      // Login berhasil, arahkan ke dashboard.
+      // Cookie sesi dibuat oleh API login.
+      router.replace("/dashboard");
       router.refresh();
-    } else {
-      setError("Email atau password yang kamu masukkan salah.");
+    } catch {
+      setError("Tidak dapat terhubung ke server. Silakan coba lagi.");
+    } finally {
       setLoading(false);
     }
   };
@@ -167,6 +180,7 @@ export default function LoginPage() {
               <h2 className="text-2xl font-bold text-gray-900">
                 Selamat Datang!
               </h2>
+
               <p className="mt-1 text-sm text-gray-500">
                 Masuk ke akunmu untuk melanjutkan.
               </p>
@@ -193,29 +207,31 @@ export default function LoginPage() {
               onSubmit={handleLogin}
               autoComplete="off"
             >
-              {/* Email */}
+              {/* Username */}
               <div>
                 <label
-                  htmlFor="email"
+                  htmlFor="username"
                   className="mb-1.5 block text-sm font-semibold text-gray-800"
                 >
-                  Alamat Email
+                  Username
                 </label>
 
                 <div className="relative">
-                  <Mail
+                  <UserRound
                     size={18}
                     className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
                   />
 
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="nama@email.com"
+                    id="username"
+                    name="username"
+                    type="text"
+                    placeholder="Masukkan username"
                     autoComplete="off"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                     className="h-12 w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                   />
@@ -260,7 +276,7 @@ export default function LoginPage() {
 
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword((prev) => !prev)}
                     aria-label={
                       showPassword ? "Sembunyikan password" : "Lihat password"
                     }
@@ -332,6 +348,7 @@ export default function LoginPage() {
             {/* Security */}
             <div className="mt-6 flex items-center justify-center gap-2 text-gray-400">
               <ShieldCheck size={14} />
+
               <span className="text-[11px]">
                 Login aman dan terlindungi bersama Dompetku
               </span>

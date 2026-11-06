@@ -175,7 +175,7 @@ export default function Home() {
       {/* HERO */}
       <section
         id="beranda"
-        className="relative scroll-mt-20 overflow-hidden bg-linear-to-b from-emerald-50/70 via-white to-white"
+        className="relative overflow-hidden bg-linear-to-b from-emerald-50/70 via-white to-white"
       >
         <div className="pointer-events-none absolute -right-40 -top-40 h-125 w-125 rounded-full bg-emerald-100/60 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 -left-40 h-100 w-100 rounded-full bg-blue-100/40 blur-3xl" />
@@ -410,7 +410,7 @@ export default function Home() {
       </section>
 
       {/* FITUR */}
-      <section id="fitur" className="scroll-mt-20 bg-white py-24">
+      <section id="fitur" className="bg-white py-24">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-600">
@@ -464,7 +464,7 @@ export default function Home() {
       </section>
 
       {/* TENTANG */}
-      <section id="tentang" className="scroll-mt-20 bg-gray-50 py-24">
+      <section id="tentang" className="bg-gray-50 py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 sm:px-8 lg:grid-cols-2">
           <div className="relative">
             <div className="absolute -inset-4 rounded-3xl bg-emerald-100/70 blur-2xl" />

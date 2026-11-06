@@ -16,7 +16,13 @@ export default function Navbar({ children }: { children: ReactNode }) {
     setIsSidebarOpen((prev) => !prev);
   };
 
-  const hideNavigation = ["/", "/login", "/register"].includes(pathname);
+  const hideNavigation = [
+    "/",
+    "/login",
+    "/register",
+    "/verify-email",
+    "/forgot-password",
+  ].includes(pathname);
 
   if (hideNavigation) {
     return <div className="min-h-dvh">{children}</div>;
